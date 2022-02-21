@@ -1,0 +1,139 @@
+
+Introduction to C / C++ Programming
+Basic Text File Input and Output
+Accreditation
+
+    Some content here was drawn from "C Programming, A Modern Approach" by K.N. King, Chapter 22.
+
+    Some material on this page was drawn from linuxmanpages.com
+
+Binary versus Text Data Storage
+
+    Computers normally store numeric data in binary format, which is suitable for manipulation and storage by computer chips, but which is not readable by humans.
+    Text-based representations of data consists of a series of printable characters, which humans interpret as numbers, but which the computer cannot directly use for calculational purposes.
+    For example, the statement "float pi = acos( -1.0 );" would allocate 32 bits of binary storage for a floating point number, and save in that storage a binary representation of the number pi, typically 1 sign bit plus 23 bits of mantissa ( digit ) information plus 8 bits to store the ( binary ) exponent. The computer can manipulate this data for things like multiplication and division, but a human would not be able to understand the meaning of the bits.
+    On the other hand, if we use printf to print the variable out to the screen, then the printf function would generate a series of characters that a human could understand, and send them to the screen. For example, the computer might generate the sequence of characters: '3', '.', '1', '4', '1', '5', '9'. These seven characters at 8 bits each would occupy a total of 56 bits, nearly twice the total storage space of the binary equivalent.
+
+        sign
+        	
+        mantissa
+        	
+        exp
+        	
+        ==>
+        	
+        3
+        	
+        .
+        	
+        1
+        	
+        4
+        	
+        1
+        	
+        5
+        	
+        9
+        32 bits binary
+        	
+        7 chars = 56 bits
+
+         
+
+    When selecting a file format for saving and restoring data, it is important to consider several tradeoffs:
+        If the actual data to be stored are text characters, like a simple document, then text-formatted storage is appropriate.
+            ( Unless the file also contains binary information such as formatting information or images, in which case binary is neccessary. )
+        For numbers, binary storage is faster for the computer to read and write, and also requires less storage space for the same amount of data.
+        Text files are readable by humans, and can be edited using any basic text editor such as Notepad, Wordpad or Dev C++. ( Or even Microsoft Word, except you have to be careful to save the file as a plain-text file, without any formatting information, i.e. .txt format instead of .doc )
+        Reading and writing binary data files requires the use of pointers, and some understanding of memory allocation.
+        Reading and writing text files normally uses the fprintf and fscanf functions, which are easily understood by anyone who knows printf and scanf.
+
+Basics of Reading and Writing Text Files
+
+    In order to read from or write to simple text files, three steps are needed:
+
+        Open the file using fopen
+        Read from the file using fscanf or write to the file using fprintf
+        Close the file using fclose.
+
+    fopen
+
+        Before a file can be used, it has to be opened. One command for doing this is the system call fopen, which has the prototype:
+
+        FILE *fopen(const char *path, const char *mode);
+
+            The path argument is simply the name of the file you wish to open, either as a "quoted string" or as a character array containing a null-byte-terminated file name.
+            The mode indicates whether the file should be opened for reading or writing ( or a few other things we won't worry about right now ), and is expressed as a quoted string such as "r".
+            For now we are only interested in the following modes:
+
+            r
+                Open text file for reading. The stream is positioned at the beginning of the file. 
+            r+
+                Open for reading and writing. The stream is positioned at the beginning of the file. 
+            w
+                Truncate file to zero length or create text file for writing. The stream is positioned at the beginning of the file. 
+            w+
+                Open for reading and writing. The file is created if it does not exist, otherwise it is truncated. The stream is positioned at the beginning of the file. 
+            a
+                Open for appending (writing at end of file). The file is created if it does not exist. The stream is positioned at the end of the file. 
+            a+
+                Open for reading and appending (writing at end of file). The file is created if it does not exist. The initial file position for reading is at the beginning of the file, but output is always appended to the end of the file. 
+
+        The return value from fopen is of type "FILE *". To get started we only need to know the following about FILE *s:
+            Create a variable of type FILE *, and store the return value from fopen in it.
+            Check the return value to make sure it is not equal to NULL before using it. If fopen returns NULL, then it was unable to open the requested file for some reason.
+            The FILE * returned by fopen will be needed later in order to use the file.
+            There are three FILE *s pre-defined in <stdio.h> that are particularly useful:
+                stdin - Standard input, normally the keyboard.
+                stdout - Standard output, normally the screen. ( Although it is somewhat common to redirect stdout to a file for later use. )
+                stderr - Standard error, also normally the screen. The benefit of having both stdout and stderr is that if the "results" of the program written to stdout are redirected to a file, then the messages written to stderr are still sent to the screen.
+
+    fprintf and fscanf
+
+        fprintf and fscanf work exactly the same as printf and scanf, except they take an extra argument at the beginning, of type FILE *:
+
+        int fprintf(FILE *stream, const char *format, ...);
+
+        int fscanf(FILE *stream, const char *format, ...);
+
+        The first argument should be a FILE * previously returned by a succesful call to fopen.
+        fprintf returns the number of characters successfully printed, or a negative number if an error occurs.
+        fscanf returns the number of fields that were successfuly scanned in and stored, which may be less than the number of specifiers ( % ) provided if the wrong data type was encountered, e.g. if non-numeric characters were encountered when trying to read in a number.
+        fscanf returns EOF if the end of the file was encountered before the desired number of items could be scanned in.
+
+    fclose
+
+        After a program has finished using a file, it should always close the file using:
+
+        int fclose(FILE *stream); 
+
+        Among other things, closing a file flushes buffers from RAM out to disk, and makes the file available to other programs.
+
+    Example:
+
+            char filename[ 80 ];
+            FILE *inputFile;
+        	int data;
+
+        	printf( "Please enter a file name: " );
+        	scanf( "%s", filename );
+        	if( ( inputFile = fopen( filename, "r" ) ) == NULL ) {
+        		fprintf( stderr, "Error- Unable to open %s\n", filename );
+        		exit( -1 );
+        	}
+
+        	if( fscanf( inputFile, "%d", &data ) != 1 ) {
+        		fprintf( stderr, "Error reading from %s\n", filename );
+        		exit( -2 );
+        	}
+
+        	printf( "Successfully read in %d from %s\n", data, filename );
+
+        	fclose( inputFile );
+        	inputFile = NULL;  // Safety precaution, to prevent trying to use a closed file.
+            
+
+     
+
+See also: Formatted I/O
