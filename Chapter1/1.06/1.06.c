@@ -8,7 +8,7 @@ int main(){
     
     input = fopen(INPUT_FILE, "r");
     if (input == 0){
-        printf("error opening the file:%s", INPUT_FILE);
+        printf("error opening the file: %s\n", INPUT_FILE);
         return -1;
     }
 
