@@ -14,7 +14,7 @@ int main(){
 
     do{
         c = fgetc(input);
-        printf("getchar() != EOF return %d\n",c != EOF);
+        printf("fgetc() != EOF return %d\n",c != EOF);
         putchar(c);
         printf("\n");
     }
